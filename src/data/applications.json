@@ -1,0 +1,291 @@
+[
+  {
+    "id": "1",
+    "type": "Université",
+    "name": "ETH Zurich",
+    "program": "Master en Informatique",
+    "country": "Suisse",
+    "city": "Zurich",
+    "deadline": "2025-12-15",
+    "status": "Acceptée",
+    "amount": 0,
+    "applicationFee": 150,
+    "website": "https://ethz.ch",
+    "notes": "Excellente université, classée dans le top 10 mondial. Nécessite IELTS 7.0 minimum.",
+    "documents": [
+      {
+        "name": "CV",
+        "completed": true,
+        "completedDate": "2025-11-01T10:00:00.000Z"
+      },
+      {
+        "name": "Lettre de motivation",
+        "completed": true,
+        "completedDate": "2025-11-05T14:30:00.000Z"
+      },
+      {
+        "name": "Relevés de notes",
+        "completed": true,
+        "completedDate": "2025-11-12T20:39:48.185Z"
+      },
+      {
+        "name": "Lettres de recommandation (2)",
+        "completed": true,
+        "completedDate": "2025-11-12T20:39:49.297Z"
+      },
+      {
+        "name": "IELTS",
+        "completed": true,
+        "completedDate": "2025-10-20T09:00:00.000Z"
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "En cours",
+        "date": "2025-10-25T10:00:00.000Z",
+        "note": "Début de la préparation du dossier"
+      },
+      {
+        "status": "Acceptée",
+        "date": "2025-11-12T20:39:54.035Z"
+      }
+    ],
+    "createdAt": "2025-10-25T10:00:00.000Z",
+    "updatedAt": "2025-11-12T20:39:55.453Z",
+    "submittedDate": ""
+  },
+  {
+    "id": "2",
+    "type": "Bourse",
+    "name": "Bourse Eiffel",
+    "country": "France",
+    "deadline": "2025-11-20",
+    "status": "En révision",
+    "submittedDate": "2025-11-08",
+    "amount": 12000,
+    "applicationFee": 0,
+    "website": "https://www.campusfrance.org",
+    "notes": "Bourse très prestigieuse du gouvernement français. Couvre 12 mois.",
+    "documents": [
+      {
+        "name": "Formulaire Campus France",
+        "completed": true,
+        "completedDate": "2025-11-01T10:00:00.000Z"
+      },
+      {
+        "name": "Projet d'études",
+        "completed": true,
+        "completedDate": "2025-11-05T10:00:00.000Z"
+      },
+      {
+        "name": "Diplômes",
+        "completed": true,
+        "completedDate": "2025-11-06T10:00:00.000Z"
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "En cours",
+        "date": "2025-10-20T10:00:00.000Z"
+      },
+      {
+        "status": "Soumise",
+        "date": "2025-11-08T15:30:00.000Z",
+        "note": "Dossier envoyé via Campus France"
+      },
+      {
+        "status": "En révision",
+        "date": "2025-11-12T20:45:06.433Z"
+      }
+    ],
+    "createdAt": "2025-10-20T10:00:00.000Z",
+    "updatedAt": "2025-11-12T20:45:07.780Z",
+    "program": "",
+    "city": ""
+  },
+  {
+    "id": "3",
+    "type": "Université",
+    "name": "MIT",
+    "program": "Master in Computer Science",
+    "country": "États-Unis",
+    "city": "Cambridge",
+    "deadline": "2025-11-18",
+    "status": "En cours",
+    "amount": 0,
+    "applicationFee": 95,
+    "website": "https://www.mit.edu",
+    "notes": "Top 1 mondial. GRE requis (score min: 320). TOEFL min: 100.",
+    "documents": [
+      {
+        "name": "Formulaire en ligne",
+        "completed": true,
+        "completedDate": "2025-11-10T10:00:00.000Z"
+      },
+      {
+        "name": "GRE Score",
+        "completed": true,
+        "completedDate": "2025-10-15T10:00:00.000Z"
+      },
+      {
+        "name": "TOEFL Score",
+        "completed": true,
+        "completedDate": "2025-10-18T10:00:00.000Z"
+      },
+      {
+        "name": "Statement of Purpose",
+        "completed": false
+      },
+      {
+        "name": "3 Lettres de recommandation",
+        "completed": false
+      },
+      {
+        "name": "Transcripts officiels",
+        "completed": false
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "En cours",
+        "date": "2025-10-10T10:00:00.000Z",
+        "note": "Candidature très compétitive"
+      }
+    ],
+    "createdAt": "2025-10-10T10:00:00.000Z",
+    "updatedAt": "2025-11-10T10:00:00.000Z"
+  },
+  {
+    "id": "4",
+    "type": "Bourse",
+    "name": "Chevening Scholarship",
+    "country": "Royaume-Uni",
+    "deadline": "2025-11-02",
+    "status": "Refusée",
+    "submittedDate": "2025-10-28",
+    "amount": 30000,
+    "applicationFee": 0,
+    "website": "https://www.chevening.org",
+    "notes": "Bourse complète du gouvernement britannique. Très compétitive.",
+    "documents": [
+      {
+        "name": "Application form",
+        "completed": true,
+        "completedDate": "2025-10-25T10:00:00.000Z"
+      },
+      {
+        "name": "Essays (4)",
+        "completed": true,
+        "completedDate": "2025-10-27T10:00:00.000Z"
+      },
+      {
+        "name": "References (2)",
+        "completed": true,
+        "completedDate": "2025-10-26T10:00:00.000Z"
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "En cours",
+        "date": "2025-09-15T10:00:00.000Z"
+      },
+      {
+        "status": "Soumise",
+        "date": "2025-10-28T14:00:00.000Z",
+        "note": "Candidature complétée à temps"
+      },
+      {
+        "status": "Refusée",
+        "date": "2025-11-10T09:00:00.000Z",
+        "note": "Malheureusement non retenu cette année. Retenter l'année prochaine."
+      }
+    ],
+    "createdAt": "2025-09-15T10:00:00.000Z",
+    "updatedAt": "2025-11-10T09:00:00.000Z"
+  },
+  {
+    "id": "5",
+    "type": "Université",
+    "name": "TU Munich",
+    "program": "Master in Data Science",
+    "country": "Allemagne",
+    "city": "Munich",
+    "deadline": "2026-01-15",
+    "status": "En attente",
+    "amount": 0,
+    "applicationFee": 0,
+    "website": "https://www.tum.de",
+    "notes": "Pas de frais de scolarité en Allemagne ! Excellent programme de Data Science.",
+    "documents": [
+      {
+        "name": "Uni-Assist Application",
+        "completed": false
+      },
+      {
+        "name": "Bachelor Degree",
+        "completed": false
+      },
+      {
+        "name": "Motivation Letter",
+        "completed": false
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "En attente",
+        "date": "2025-11-01T10:00:00.000Z",
+        "note": "En attente d'avoir les résultats du semestre actuel"
+      }
+    ],
+    "createdAt": "2025-11-01T10:00:00.000Z",
+    "updatedAt": "2025-11-01T10:00:00.000Z"
+  },
+  {
+    "id": "6",
+    "type": "Bourse",
+    "name": "DAAD Scholarship",
+    "country": "Allemagne",
+    "deadline": "2025-11-30",
+    "status": "En révision",
+    "submittedDate": "2025-11-10",
+    "amount": 10800,
+    "applicationFee": 0,
+    "website": "https://www.daad.de",
+    "notes": "Bourse allemande très réputée. 900€/mois pendant 12 mois.",
+    "documents": [
+      {
+        "name": "DAAD Portal Application",
+        "completed": true,
+        "completedDate": "2025-11-08T10:00:00.000Z"
+      },
+      {
+        "name": "Research Proposal",
+        "completed": true,
+        "completedDate": "2025-11-09T10:00:00.000Z"
+      },
+      {
+        "name": "Academic CV",
+        "completed": true,
+        "completedDate": "2025-11-07T10:00:00.000Z"
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "En cours",
+        "date": "2025-10-15T10:00:00.000Z"
+      },
+      {
+        "status": "Soumise",
+        "date": "2025-11-10T16:00:00.000Z",
+        "note": "Application soumise via le portail DAAD"
+      },
+      {
+        "status": "En révision",
+        "date": "2025-11-11T10:00:00.000Z",
+        "note": "Confirmation de réception et début de l'évaluation"
+      }
+    ],
+    "createdAt": "2025-10-15T10:00:00.000Z",
+    "updatedAt": "2025-11-11T10:00:00.000Z"
+  }
+]
