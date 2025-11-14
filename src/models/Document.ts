@@ -41,10 +41,11 @@ const documentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    // Documents are independent, not linked to a specific application
     applicationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Application",
-      default: null,
+      required: false,
     },
     description: {
       type: String,
@@ -60,5 +61,9 @@ const documentSchema = new mongoose.Schema(
 documentSchema.index({ userId: 1, type: 1 });
 documentSchema.index({ applicationId: 1 });
 
-export default mongoose.models.Document ||
-  mongoose.model("Document", documentSchema);
+// Clear any existing model to avoid schema caching issues
+if (mongoose.models.Document) {
+  delete mongoose.models.Document;
+}
+
+export default mongoose.model("Document", documentSchema);
