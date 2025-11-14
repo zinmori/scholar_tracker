@@ -68,7 +68,7 @@ export interface Document {
   type: DocumentType;
   mimeType: string;
   size: number;
-  path: string;
+  fileId: string; // GridFS file ID instead of path
   userId: string;
   applicationId?: string;
   description?: string;

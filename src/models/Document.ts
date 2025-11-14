@@ -31,8 +31,9 @@ const documentSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    path: {
-      type: String,
+    // GridFS file ID instead of path
+    fileId: {
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     userId: {

@@ -1,17 +1,22 @@
-import { NextResponse } from "next/server";
-import {
-  getApplicationById,
-  updateApplication,
-  deleteApplication,
-} from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { authenticateRequest, isAdmin } from "@/lib/auth";
+import connectDB from "@/lib/mongodb";
+import Application from "@/models/Application";
 
+// GET single application
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const payload = await authenticateRequest(request);
     const { id } = await params;
-    const application = await getApplicationById(id);
+
+    await connectDB();
+    const application = await Application.findById(id).populate(
+      "userId",
+      "name email"
+    );
 
     if (!application) {
       return NextResponse.json(
@@ -20,63 +25,110 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(application);
-  } catch (error) {
-    console.error("Error fetching application:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch application" },
-      { status: 500 }
-    );
+    // Check if user owns the application or is admin
+    if (
+      application.userId._id.toString() !== payload.userId &&
+      !isAdmin(payload)
+    ) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Transform the data
+    const appObj = application.toObject();
+    const userId = appObj.userId as any; // Populated user object
+    const transformedApp = {
+      ...appObj,
+      id: appObj._id.toString(),
+      userId: userId._id.toString(),
+      user: {
+        id: userId._id.toString(),
+        name: userId.name,
+        email: userId.email,
+      },
+      deadline: appObj.deadline.toISOString().split("T")[0],
+      submittedDate: appObj.submittedDate
+        ? appObj.submittedDate.toISOString().split("T")[0]
+        : undefined,
+      createdAt: appObj.createdAt.toISOString(),
+      updatedAt: appObj.updatedAt.toISOString(),
+    };
+
+    return NextResponse.json({ application: transformedApp });
+  } catch (error: any) {
+    console.error("Get application error:", error);
+    return NextResponse.json({ error: error.message }, { status: 401 });
   }
 }
 
+// PUT update application
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const payload = await authenticateRequest(request);
     const { id } = await params;
-    const body = await request.json();
-    const updatedApplication = await updateApplication(id, body);
 
-    if (!updatedApplication) {
+    await connectDB();
+    const application = await Application.findById(id);
+
+    if (!application) {
       return NextResponse.json(
         { error: "Application not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(updatedApplication);
-  } catch (error) {
-    console.error("Error updating application:", error);
-    return NextResponse.json(
-      { error: "Failed to update application" },
-      { status: 500 }
-    );
+    // Check if user owns the application or is admin
+    if (application.userId.toString() !== payload.userId && !isAdmin(payload)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const updated = await Application.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    return NextResponse.json({ success: true, application: updated });
+  } catch (error: any) {
+    console.error("Update application error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+// DELETE application
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const payload = await authenticateRequest(request);
     const { id } = await params;
-    const success = await deleteApplication(id);
 
-    if (!success) {
+    await connectDB();
+    const application = await Application.findById(id);
+
+    if (!application) {
       return NextResponse.json(
         { error: "Application not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ message: "Application deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting application:", error);
-    return NextResponse.json(
-      { error: "Failed to delete application" },
-      { status: 500 }
-    );
+    // Check if user owns the application or is admin
+    if (application.userId.toString() !== payload.userId && !isAdmin(payload)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    await Application.findByIdAndDelete(id);
+
+    return NextResponse.json({
+      success: true,
+      message: "Application deleted successfully",
+    });
+  } catch (error: any) {
+    console.error("Delete application error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

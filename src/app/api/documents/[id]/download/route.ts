@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import connectDB from "@/lib/mongodb";
 import Document from "@/models/Document";
-import { deleteFromGridFS } from "@/lib/gridfs";
+import { downloadFromGridFS } from "@/lib/gridfs";
 
 const JWT_SECRET = process.env.JWT_SECRET || "votre-secret-jwt-super-securise";
 
-export async function DELETE(
+export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -40,32 +40,33 @@ export async function DELETE(
       decoded.role !== "admin"
     ) {
       return NextResponse.json(
-        { error: "Non autorisé à supprimer ce document" },
+        { error: "Non autorisé à accéder à ce document" },
         { status: 403 }
       );
     }
 
-    // Supprimer le fichier de GridFS
-    try {
-      await deleteFromGridFS(document.fileId);
-    } catch (error) {
-      console.error("Error deleting file from GridFS:", error);
-      // Continue même si le fichier n'existe pas
-    }
+    // Télécharger le fichier depuis GridFS
+    const buffer = await downloadFromGridFS(document.fileId);
 
-    // Supprimer l'entrée de la base de données
-    await Document.findByIdAndDelete(id);
-
-    return NextResponse.json({ message: "Document supprimé avec succès" });
+    // Retourner le fichier avec les bons headers
+    return new NextResponse(buffer as any, {
+      headers: {
+        "Content-Type": document.mimeType,
+        "Content-Disposition": `inline; filename="${encodeURIComponent(
+          document.originalName
+        )}"`,
+        "Content-Length": buffer.length.toString(),
+      },
+    });
   } catch (error: any) {
-    console.error("Error deleting document:", error);
+    console.error("Error downloading document:", error);
 
     if (error.name === "JsonWebTokenError") {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: "Erreur lors de la suppression du document" },
+      { error: "Erreur lors du téléchargement du document" },
       { status: 500 }
     );
   }

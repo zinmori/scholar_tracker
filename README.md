@@ -9,7 +9,7 @@ Application Next.js complète pour tracker vos candidatures universitaires et de
 - 📝 **Gestion complète** des candidatures (CRUD)
 - 🔍 **Filtres avancés** par statut, type, recherche et tri
 - ⏰ **Alertes deadlines** avec badges urgents
-- 📄 **Documents** - Upload, stockage et gestion de CV, lettres, diplômes, etc.
+- 📄 **Documents** - Upload, stockage GridFS et gestion de CV, lettres, diplômes, etc.
 - 👥 **Panel admin** pour gérer les utilisateurs
 - 📥 **Export** CSV, JSON et PDF
 - 🔄 **Mot de passe oublié** avec reset sécurisé par token
@@ -88,11 +88,14 @@ scholar/
 │   │   ├── admin/users/              # Panel admin
 │   │   └── page.tsx                  # Page connexion
 │   ├── components/                   # Composants React
-│   ├── lib/                          # Utilitaires (mongodb, auth)
+│   ├── lib/                          # Utilitaires (mongodb, auth, gridfs, email)
 │   ├── models/                       # Modèles Mongoose (User, Application, Document)
 │   └── types/                        # Types TypeScript
-├── public/uploads/                   # Documents uploadés
-└── scripts/seed.ts                   # Initialisation BD
+├── scripts/
+│   ├── seed.ts                       # Initialisation BD
+│   ├── test-email.js                 # Test configuration SMTP
+│   └── migrate-to-gridfs.js          # Migration documents vers GridFS
+└── GRIDFS_MIGRATION.md               # Documentation migration GridFS
 ```
 
 ## 🎯 Guide d'utilisation
@@ -109,10 +112,12 @@ scholar/
 
 - Accès via bouton "Mes Documents" dans le header
 - **Upload** : Drag & drop ou sélection (max 10MB)
+- **Stockage** : GridFS (compatible Vercel, pas de système de fichiers requis)
 - **Types** : CV, Lettre, Relevé, Diplôme, Passeport, Photo, Autre
 - **Filtres** : Par type et recherche
 - **Actions** : Visualiser, télécharger, supprimer
 - **Sécurité** : Chaque utilisateur voit uniquement ses documents
+- **Migration** : `npm run migrate:gridfs` pour migrer les anciens documents
 
 ### Administration
 
@@ -139,6 +144,8 @@ En tant qu'admin :
 - `npm run build` - Build production
 - `npm start` - Serveur production
 - `npm run seed` - Initialiser la BD
+- `npm run test:email` - Tester la configuration SMTP
+- `npm run migrate:gridfs` - Migrer les documents vers GridFS
 
 ## 🔒 Sécurité
 
@@ -151,21 +158,26 @@ En tant qu'admin :
 
 ## 🚀 Déploiement Vercel
 
+✅ **Compatible Vercel** : L'application utilise GridFS pour stocker les documents directement dans MongoDB, pas besoin de système de fichiers.
+
 ```bash
 vercel
 ```
 
-Configurer les variables :
+Configurer les variables d'environnement :
 
 - `MONGODB_URI`
 - `JWT_SECRET`
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+- `NEXT_PUBLIC_BASE_URL`
+
+Voir `.env.local.example` et `GRIDFS_MIGRATION.md` pour plus de détails.
 
 ## 💻 Technologies
 
 **Frontend** : Next.js 15, TypeScript, Tailwind CSS, Chart.js  
-**Backend** : MongoDB Atlas, Mongoose, JWT, bcrypt  
-**Upload** : File System API (public/uploads)
+**Backend** : MongoDB Atlas, Mongoose, JWT, bcrypt, Nodemailer  
+**Stockage** : GridFS (MongoDB) - Compatible Vercel, serverless-ready  
+**Email** : SMTP (Gmail, SendGrid, Outlook, Yahoo supportés)
 
 ---
-
-**Bon courage pour vos candidatures ! 🎓**

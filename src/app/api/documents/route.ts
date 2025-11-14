@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import jwt from "jsonwebtoken";
 import connectDB from "@/lib/mongodb";
 import Document from "@/models/Document";
+import { uploadToGridFS } from "@/lib/gridfs";
 
 const JWT_SECRET = process.env.JWT_SECRET || "votre-secret-jwt-super-securise";
 
@@ -134,10 +133,15 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Sauvegarder le fichier
-    const uploadDir = join(process.cwd(), "public", "uploads");
-    const filePath = join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
+    // Upload vers GridFS
+    const fileId = await uploadToGridFS(buffer, fileName, {
+      originalName: file.name,
+      mimeType: file.type,
+      userId: decoded.userId,
+      type,
+      applicationId: applicationId || undefined,
+      description,
+    });
 
     // Créer l'entrée dans la base de données
     const document = await Document.create({
@@ -146,7 +150,7 @@ export async function POST(request: NextRequest) {
       type,
       mimeType: file.type,
       size: file.size,
-      path: `/uploads/${fileName}`,
+      fileId,
       userId: decoded.userId,
       applicationId: applicationId || null,
       description,

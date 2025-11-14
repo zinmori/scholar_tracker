@@ -11,6 +11,7 @@ import {
   HardDrive,
 } from "lucide-react";
 import { Document, DocumentType, User } from "@/types";
+import { downloadDocument, viewDocument } from "@/lib/documentHelpers";
 
 interface DocumentListProps {
   documents: Document[];
@@ -44,6 +45,8 @@ export default function DocumentList({
   showOwner = false,
 }: DocumentListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -72,6 +75,28 @@ export default function DocumentList({
       await onDelete(id);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleDownload = async (id: string, originalName: string) => {
+    setDownloadingId(id);
+    try {
+      await downloadDocument(id, originalName);
+    } catch (error) {
+      alert("Erreur lors du téléchargement du document");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handleView = async (id: string) => {
+    setViewingId(id);
+    try {
+      await viewDocument(id);
+    } catch (error) {
+      alert("Erreur lors de l'affichage du document");
+    } finally {
+      setViewingId(null);
     }
   };
 
@@ -150,23 +175,22 @@ export default function DocumentList({
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <a
-                    href={doc.path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  <button
+                    onClick={() => handleView(doc.id)}
+                    disabled={viewingId === doc.id}
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                     title="Visualiser"
                   >
                     <Eye className="w-4 h-4" />
-                  </a>
-                  <a
-                    href={doc.path}
-                    download={doc.originalName}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleDownload(doc.id, doc.originalName)}
+                    disabled={downloadingId === doc.id}
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                     title="Télécharger"
                   >
                     <Download className="w-4 h-4" />
-                  </a>
+                  </button>
                   <button
                     onClick={() => handleDelete(doc.id)}
                     disabled={deletingId === doc.id}
