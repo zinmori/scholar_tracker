@@ -76,22 +76,23 @@ export default function ExportButtons({ applications }: ExportButtonsProps) {
         <head>
           <title>Rapport de Candidatures - Scholar Tracker</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #4f46e5; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #4f46e5; color: white; }
-            tr:nth-child(even) { background-color: #f9fafb; }
-            .header { margin-bottom: 20px; }
-            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
-            .stat { padding: 15px; border: 1px solid #ddd; border-radius: 8px; text-align: center; }
-            .stat-value { font-size: 24px; font-weight: bold; color: #4f46e5; }
-            .stat-label { font-size: 12px; color: #666; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 30px; color: #18181b; background-color: #ffffff; }
+            h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; color: #09090b; }
+            p { font-size: 13px; color: #71717a; margin: 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 13px; }
+            th, td { border-bottom: 1px solid #e4e4e7; padding: 10px 12px; text-align: left; }
+            th { background-color: #f4f4f5; color: #27272a; font-weight: 600; }
+            tr:nth-child(even) { background-color: #fafafa; }
+            .header { margin-bottom: 24px; border-bottom: 1px solid #e4e4e7; padding-bottom: 16px; }
+            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+            .stat { padding: 16px; border: 1px solid #e4e4e7; border-radius: 8px; text-align: left; }
+            .stat-value { font-size: 20px; font-weight: 600; color: #09090b; }
+            .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; tracking-wider; color: #71717a; margin-top: 4px; }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>📚 Scholar Tracker - Rapport de Candidatures</h1>
+            <h1>Scholar Tracker - Rapport de Candidatures</h1>
             <p>Généré le ${new Date().toLocaleDateString("fr-FR", {
               day: "numeric",
               month: "long",
@@ -146,9 +147,7 @@ export default function ExportButtons({ applications }: ExportButtonsProps) {
                   (app) => `
                 <tr>
                   <td>${app.name}</td>
-                  <td>${app.type === "Université" ? "🎓" : "💰"} ${
-                    app.type
-                  }</td>
+                  <td>${app.type}</td>
                   <td>${app.country}${app.city ? `, ${app.city}` : ""}</td>
                   <td>${new Date(app.deadline).toLocaleDateString("fr-FR")}</td>
                   <td>${app.status}</td>
@@ -174,23 +173,23 @@ export default function ExportButtons({ applications }: ExportButtonsProps) {
     <div className="flex gap-2">
       <button
         onClick={exportToCSV}
-        className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+        className="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-medium rounded-lg hover:bg-zinc-50 hover:text-zinc-900 transition-colors flex items-center gap-1.5 shadow-xs"
       >
-        <FileDown className="w-4 h-4" />
+        <FileDown className="w-3.5 h-3.5 text-zinc-500" />
         Export CSV
       </button>
       <button
         onClick={exportToJSON}
-        className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        className="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-medium rounded-lg hover:bg-zinc-50 hover:text-zinc-900 transition-colors flex items-center gap-1.5 shadow-xs"
       >
-        <FileJson className="w-4 h-4" />
+        <FileJson className="w-3.5 h-3.5 text-zinc-500" />
         Backup JSON
       </button>
       <button
         onClick={printReport}
-        className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+        className="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-medium rounded-lg hover:bg-zinc-50 hover:text-zinc-900 transition-colors flex items-center gap-1.5 shadow-xs"
       >
-        <Printer className="w-4 h-4" />
+        <Printer className="w-3.5 h-3.5 text-zinc-500" />
         Imprimer PDF
       </button>
     </div>

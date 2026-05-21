@@ -11,7 +11,7 @@ import UpcomingDeadlines from "@/components/UpcomingDeadlines";
 import DashboardCharts from "@/components/DashboardCharts";
 import Filters from "@/components/Filters";
 import ExportButtons from "@/components/ExportButtons";
-import { Users, LogOut, Shield, FileText, GraduationCap } from "lucide-react";
+import { Users, LogOut, Shield, FileText, GraduationCap, BookOpen } from "lucide-react";
 
 interface User {
   id: string;
@@ -228,39 +228,39 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl text-gray-900">Chargement...</div>
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
+        <div className="text-sm font-medium text-zinc-500 animate-pulse">Chargement...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-zinc-50/50">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <header className="bg-white border-b border-zinc-200/80 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Mobile & Desktop Layout */}
-          <div className="flex  justify-between items-center gap-4">
+          <div className="flex justify-between items-center gap-4">
             {/* Title and Badge */}
             <div className="flex items-center gap-3 flex-shrink-0">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2">
-                <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10" />
+              <h1 className="text-xl font-semibold text-zinc-900 tracking-tight flex items-center gap-2.5">
+                <GraduationCap className="w-7 h-7 text-zinc-900" />
                 <span className="hidden sm:inline">Scholar Tracker</span>
                 <span className="sm:hidden">Scholar</span>
               </h1>
               {user && user.role === "admin" && (
-                <span className="flex items-center gap-1 px-2 sm:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-medium">
-                  <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Admin</span>
+                <span className="flex items-center gap-1 px-2.5 py-0.5 bg-zinc-100 text-zinc-800 border border-zinc-200/80 rounded-full text-[10px] sm:text-xs font-medium">
+                  <Shield className="w-3 h-3 text-zinc-700" />
+                  <span>Admin</span>
                 </span>
               )}
             </div>
 
             {/* User Info & Actions */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-4">
               {/* User Info - Hidden on mobile */}
               {user && (
-                <span className="hidden md:block text-xs lg:text-sm text-gray-600 truncate max-w-[200px]">
+                <span className="hidden md:block text-xs font-medium text-zinc-500 truncate max-w-[200px]">
                   {user.name}
                 </span>
               )}
@@ -268,29 +268,39 @@ export default function DashboardPage() {
               {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => router.push("/documents")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors whitespace-nowrap"
+                  onClick={() => router.push("/opportunities")}
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors whitespace-nowrap"
                 >
-                  <FileText className="w-4 h-4" />
+                  <BookOpen className="w-4 h-4 text-zinc-400" />
+                  <span>Opportunités</span>
+                </button>
+
+                <button
+                  onClick={() => router.push("/documents")}
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors whitespace-nowrap"
+                >
+                  <FileText className="w-4 h-4 text-zinc-400" />
                   <span className="hidden sm:inline">Mes </span>Docs
                 </button>
 
                 {user && user.role === "admin" && (
                   <button
                     onClick={() => router.push("/admin/users")}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors whitespace-nowrap"
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors whitespace-nowrap"
                   >
-                    <Users className="w-4 h-4" />
+                    <Users className="w-4 h-4 text-zinc-400" />
                     <span className="hidden lg:inline">Utilisateurs</span>
                     <span className="lg:hidden">Users</span>
                   </button>
                 )}
 
+                <div className="w-px h-4 bg-zinc-200 mx-1"></div>
+
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-zinc-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-lg transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4 text-zinc-400 hover:text-rose-600" />
                   <span className="hidden sm:inline">Déconnexion</span>
                 </button>
               </div>
@@ -328,21 +338,21 @@ export default function DashboardPage() {
         {/* Actions */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
               {user?.role === "admin"
                 ? "Toutes les Candidatures"
                 : "Mes Candidatures"}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs text-zinc-500 mt-1 font-medium">
               {filteredApps.length} sur {applications.length} candidature
               {applications.length > 1 ? "s" : ""}
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <ExportButtons applications={filteredApps} />
             <button
               onClick={() => setShowForm(true)}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors font-medium"
+              className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors text-xs font-semibold shadow-xs"
             >
               + Nouvelle Candidature
             </button>
@@ -351,13 +361,13 @@ export default function DashboardPage() {
 
         {/* Applications Grid */}
         {filteredApps.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-500 text-lg">
+          <div className="text-center py-16 bg-white rounded-xl border border-zinc-200/80">
+            <p className="text-zinc-500 text-base font-medium">
               {applications.length === 0
                 ? "Aucune candidature pour le moment."
                 : "Aucune candidature ne correspond aux filtres."}
             </p>
-            <p className="text-gray-400 text-sm mt-2">
+            <p className="text-zinc-400 text-xs mt-1.5">
               {applications.length === 0
                 ? "Commencez par ajouter votre première candidature !"
                 : "Essayez de modifier vos critères de recherche."}

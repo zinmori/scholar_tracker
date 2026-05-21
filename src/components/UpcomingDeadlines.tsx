@@ -40,57 +40,55 @@ export default function UpcomingDeadlines({
   };
 
   return (
-    <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
-      <div className="flex items-start">
-        <AlertTriangle className="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-1" />
-        <div className="flex-1">
-          <h3 className="text-lg font-bold text-red-900 mb-2">
-            Deadlines Urgentes ({upcomingApps.length})
-          </h3>
-          <div className="space-y-2">
-            {upcomingApps.map((app) => {
-              const daysLeft = getDaysUntil(app.deadline);
-              return (
-                <div
-                  key={app.id}
-                  className="bg-white rounded p-3 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    {app.type === "Université" ? (
-                      <GraduationCap className="w-5 h-5 text-blue-600" />
-                    ) : (
-                      <DollarSign className="w-5 h-5 text-green-600" />
-                    )}
-                    <div>
-                      <p className="font-semibold text-gray-900">{app.name}</p>
-                      <p className="text-sm text-gray-600">{app.country}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-700">
-                      {formatDate(app.deadline)}
-                    </p>
-                    <p
-                      className={`text-xs font-semibold ${
-                        daysLeft <= 2
-                          ? "text-red-600"
-                          : daysLeft <= 5
-                          ? "text-orange-600"
-                          : "text-yellow-600"
-                      }`}
-                    >
-                      {daysLeft === 0
-                        ? "Aujourd'hui !"
-                        : daysLeft === 1
-                        ? "Demain !"
-                        : `Dans ${daysLeft} jours`}
-                    </p>
-                  </div>
+    <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        <AlertTriangle className="w-5 h-5 text-zinc-500" />
+        <h3 className="text-sm font-semibold text-zinc-900">
+          Échéances Imminentes ({upcomingApps.length})
+        </h3>
+      </div>
+      <div className="space-y-2">
+        {upcomingApps.map((app) => {
+          const daysLeft = getDaysUntil(app.deadline);
+          return (
+            <div
+              key={app.id}
+              className="bg-white border border-zinc-200/60 rounded-lg p-3 flex items-center justify-between shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                {app.type === "Université" ? (
+                  <GraduationCap className="w-4 h-4 text-zinc-400" />
+                ) : (
+                  <DollarSign className="w-4 h-4 text-zinc-400" />
+                )}
+                <div>
+                  <p className="text-sm font-medium text-zinc-900">{app.name}</p>
+                  <p className="text-xs text-zinc-500">{app.country}</p>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+              <div className="text-right flex items-center gap-4">
+                <div>
+                  <p className="text-xs font-medium text-zinc-600">
+                    {formatDate(app.deadline)}
+                  </p>
+                </div>
+                <div
+                  className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                    daysLeft <= 2
+                      ? "text-rose-600 bg-rose-50 border-rose-100"
+                      : "text-zinc-600 bg-zinc-50 border-zinc-200"
+                  }`}
+                >
+                  {daysLeft === 0
+                    ? "Aujourd'hui"
+                    : daysLeft === 1
+                    ? "Demain"
+                    : `J-${daysLeft}`}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

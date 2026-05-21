@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   FileText,
@@ -9,6 +7,9 @@ import {
   Calendar,
   User as UserIcon,
   HardDrive,
+  FileImage,
+  FileSpreadsheet,
+  File,
 } from "lucide-react";
 import { Document, DocumentType, User } from "@/types";
 import { downloadDocument, viewDocument } from "@/lib/documentHelpers";
@@ -20,23 +21,13 @@ interface DocumentListProps {
 }
 
 const documentTypeColors: Record<DocumentType, string> = {
-  CV: "bg-blue-100 text-blue-800",
-  "Lettre de motivation": "bg-purple-100 text-purple-800",
-  "Relevé de notes": "bg-green-100 text-green-800",
-  Diplôme: "bg-yellow-100 text-yellow-800",
-  Passeport: "bg-red-100 text-red-800",
-  Photo: "bg-pink-100 text-pink-800",
-  Autre: "bg-gray-100 text-gray-800",
-};
-
-const documentTypeIcons: Record<DocumentType, string> = {
-  CV: "📄",
-  "Lettre de motivation": "✉️",
-  "Relevé de notes": "📊",
-  Diplôme: "🎓",
-  Passeport: "🛂",
-  Photo: "📸",
-  Autre: "📎",
+  CV: "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+  "Lettre de motivation": "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+  "Relevé de notes": "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+  Diplôme: "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+  Passeport: "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+  Photo: "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+  Autre: "bg-zinc-50 text-zinc-650 border-zinc-200/60",
 };
 
 export default function DocumentList({
@@ -101,19 +92,25 @@ export default function DocumentList({
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith("image/")) return "🖼️";
-    if (mimeType.includes("pdf")) return "📕";
-    if (mimeType.includes("word") || mimeType.includes("document")) return "📝";
-    if (mimeType.includes("sheet") || mimeType.includes("excel")) return "📊";
-    return "📄";
+    if (mimeType.startsWith("image/")) {
+      return <FileImage className="w-5 h-5 text-zinc-400" />;
+    }
+    if (
+      mimeType.includes("sheet") ||
+      mimeType.includes("excel") ||
+      mimeType.includes("csv")
+    ) {
+      return <FileSpreadsheet className="w-5 h-5 text-zinc-400" />;
+    }
+    return <FileText className="w-5 h-5 text-zinc-400" />;
   };
 
   if (documents.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
-        <FileText className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-500 text-lg font-medium">Aucun document</p>
-        <p className="text-gray-400 text-sm mt-1">
+      <div className="text-center py-16 bg-white rounded-xl border border-zinc-200/80 shadow-xs">
+        <FileText className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
+        <p className="text-zinc-500 text-base font-medium">Aucun document</p>
+        <p className="text-zinc-400 text-xs mt-1.5">
           Uploadez votre premier document pour commencer
         </p>
       </div>
@@ -125,48 +122,47 @@ export default function DocumentList({
       {documents.map((doc) => (
         <div
           key={doc.id}
-          className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="bg-white p-5 rounded-xl border border-zinc-200/80 hover:border-zinc-300/80 shadow-xs hover:shadow-md transition-all duration-200"
         >
           <div className="flex items-start gap-4">
             {/* Icon */}
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-10 h-10 bg-zinc-50 border border-zinc-200/60 rounded-lg flex items-center justify-center">
                 {getFileIcon(doc.mimeType)}
               </div>
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 truncate">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-semibold text-zinc-900 truncate">
                     {doc.originalName}
                   </h4>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium border ${
                         documentTypeColors[doc.type]
                       }`}
                     >
-                      <span>{documentTypeIcons[doc.type]}</span>
                       {doc.type}
                     </span>
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <HardDrive className="w-3 h-3" />
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1 font-medium">
+                      <HardDrive className="w-3.5 h-3.5" />
                       {formatFileSize(doc.size)}
                     </span>
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1 font-medium">
+                      <Calendar className="w-3.5 h-3.5" />
                       {formatDate(doc.createdAt)}
                     </span>
                   </div>
                   {doc.description && (
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
                       {doc.description}
                     </p>
                   )}
                   {showOwner && doc.user && (
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                    <p className="text-[10px] text-zinc-400 flex items-center gap-1 mt-2 font-medium">
                       <UserIcon className="w-3 h-3" />
                       {doc.user.name}
                     </p>
@@ -178,7 +174,7 @@ export default function DocumentList({
                   <button
                     onClick={() => handleView(doc.id)}
                     disabled={viewingId === doc.id}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                    className="p-2 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-50 border border-transparent hover:border-zinc-200/60 rounded-lg transition-all disabled:opacity-50"
                     title="Visualiser"
                   >
                     <Eye className="w-4 h-4" />
@@ -186,7 +182,7 @@ export default function DocumentList({
                   <button
                     onClick={() => handleDownload(doc.id, doc.originalName)}
                     disabled={downloadingId === doc.id}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                    className="p-2 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-50 border border-transparent hover:border-zinc-200/60 rounded-lg transition-all disabled:opacity-50"
                     title="Télécharger"
                   >
                     <Download className="w-4 h-4" />
@@ -194,7 +190,7 @@ export default function DocumentList({
                   <button
                     onClick={() => handleDelete(doc.id)}
                     disabled={deletingId === doc.id}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    className="p-2 text-zinc-450 hover:text-rose-600 hover:bg-rose-50/50 border border-transparent hover:border-rose-100/50 rounded-lg transition-all disabled:opacity-50"
                     title="Supprimer"
                   >
                     <Trash2 className="w-4 h-4" />

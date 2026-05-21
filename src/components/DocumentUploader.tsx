@@ -116,8 +116,8 @@ export default function DocumentUploader({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-xs">
+      <h3 className="text-sm font-semibold text-zinc-900 mb-4">
         Uploader un document
       </h3>
 
@@ -126,10 +126,10 @@ export default function DocumentUploader({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`border border-dashed rounded-xl p-8 text-center transition-all ${
           isDragging
-            ? "border-indigo-500 bg-indigo-50"
-            : "border-gray-300 bg-gray-50"
+            ? "border-zinc-900 bg-zinc-50/80"
+            : "border-zinc-200/80 bg-zinc-50/20 hover:bg-zinc-50/50"
         }`}
       >
         <input
@@ -142,10 +142,10 @@ export default function DocumentUploader({
 
         {selectedFile ? (
           <div className="flex items-center justify-center gap-3">
-            <FileText className="w-10 h-10 text-indigo-600" />
-            <div className="text-left">
-              <p className="font-medium text-gray-900">{selectedFile.name}</p>
-              <p className="text-sm text-gray-500">
+            <FileText className="w-8 h-8 text-zinc-950 flex-shrink-0" />
+            <div className="text-left min-w-0 flex-1">
+              <p className="font-semibold text-zinc-900 text-xs truncate">{selectedFile.name}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">
                 {formatFileSize(selectedFile.size)}
               </p>
             </div>
@@ -156,18 +156,18 @@ export default function DocumentUploader({
                   fileInputRef.current.value = "";
                 }
               }}
-              className="ml-auto p-1 hover:bg-gray-200 rounded"
+              className="p-1 hover:bg-zinc-100 rounded-lg text-zinc-400 hover:text-zinc-700 transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         ) : (
-          <label htmlFor="file-upload" className="cursor-pointer">
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-700 font-medium mb-1">
+          <label htmlFor="file-upload" className="cursor-pointer block">
+            <Upload className="w-8 h-8 text-zinc-450 mx-auto mb-3" />
+            <p className="text-zinc-800 text-xs font-semibold mb-1">
               Glissez-déposez un fichier ici
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-[10px] text-zinc-400">
               ou cliquez pour sélectionner (max 10MB)
             </p>
           </label>
@@ -178,13 +178,13 @@ export default function DocumentUploader({
       {selectedFile && (
         <div className="mt-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-[10px] font-semibold text-zinc-450 uppercase tracking-wider mb-1.5">
               Type de document *
             </label>
             <select
               value={documentType}
               onChange={(e) => setDocumentType(e.target.value as DocumentType)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-850 focus:outline-none focus:border-zinc-900 transition-colors"
             >
               {documentTypes.map((type) => (
                 <option key={type} value={type}>
@@ -195,37 +195,37 @@ export default function DocumentUploader({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-[10px] font-semibold text-zinc-450 uppercase tracking-wider mb-1.5">
               Description (optionnel)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Ex: CV mise à jour février 2025"
+              placeholder="Ex: CV mise à jour février 2026"
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-850 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="p-3 bg-rose-50/50 border border-rose-100 rounded-lg">
+              <p className="text-xs text-rose-600 font-medium">{error}</p>
             </div>
           )}
 
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
+            className="w-full px-4 py-2.5 bg-zinc-950 text-white rounded-lg hover:bg-zinc-850 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed transition-all text-xs font-semibold shadow-xs flex items-center justify-center gap-2"
           >
             {uploading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
                 Upload en cours...
               </>
             ) : (
               <>
-                <Upload className="w-5 h-5" />
+                <Upload className="w-4 h-4" />
                 Uploader le document
               </>
             )}

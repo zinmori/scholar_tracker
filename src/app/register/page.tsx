@@ -72,35 +72,35 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-4">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 border border-zinc-200/80 rounded-xl shadow-sm">
         <div>
           <Link
             href="/"
-            className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-4"
+            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 transition-colors mb-4"
           >
-            <ArrowLeft size={20} />
-            <span className="text-sm">Retour à la connexion</span>
+            <ArrowLeft size={16} />
+            <span className="text-sm font-medium">Retour à la connexion</span>
           </Link>
           <div className="flex justify-center">
-            <GraduationCap className="h-16 w-16 text-indigo-600" />
+            <GraduationCap className="h-12 w-12 text-zinc-900" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-zinc-900">
             Créer un compte
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-zinc-500">
             Rejoignez Scholar Tracker pour gérer vos candidatures
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
+          <div className="space-y-4">
             <div>
               <label htmlFor="name" className="sr-only">
                 Nom complet
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-50">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-zinc-400" />
                 </div>
                 <input
                   id="name"
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                   type="text"
                   autoComplete="name"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-zinc-200 placeholder-zinc-400 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition-colors"
                   placeholder="Nom complet"
                   value={formData.name}
                   onChange={handleChange}
@@ -121,7 +121,7 @@ export default function RegisterPage() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-50">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-zinc-400" />
                 </div>
                 <input
                   id="email"
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-zinc-200 placeholder-zinc-400 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition-colors"
                   placeholder="Adresse email"
                   value={formData.email}
                   onChange={handleChange}
@@ -142,7 +142,7 @@ export default function RegisterPage() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-50">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-zinc-400" />
                 </div>
                 <input
                   id="password"
@@ -150,7 +150,7 @@ export default function RegisterPage() {
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-zinc-200 placeholder-zinc-400 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition-colors"
                   placeholder="Mot de passe (min. 6 caractères)"
                   value={formData.password}
                   onChange={handleChange}
@@ -163,7 +163,7 @@ export default function RegisterPage() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-50">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-zinc-400" />
                 </div>
                 <input
                   id="confirmPassword"
@@ -171,7 +171,7 @@ export default function RegisterPage() {
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-3 border border-zinc-200 placeholder-zinc-400 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition-colors"
                   placeholder="Confirmer le mot de passe"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -181,7 +181,7 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="rounded-md bg-red-50 p-4 border border-red-200">
+            <div className="rounded-lg bg-red-50 p-4 border border-red-200">
               <p className="text-sm text-red-800">{error}</p>
             </div>
           )}
@@ -190,18 +190,18 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-zinc-900 hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Création du compte..." : "Créer mon compte"}
             </button>
           </div>
 
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-zinc-500">
               Vous avez déjà un compte ?{" "}
               <Link
                 href="/"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                className="font-medium text-zinc-900 hover:underline underline-offset-4 transition-colors"
               >
                 Se connecter
               </Link>

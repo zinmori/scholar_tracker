@@ -3,7 +3,7 @@
 import { Application } from "@/types";
 import { DollarSign, Globe, PieChart } from "lucide-react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut, Pie } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -66,12 +66,12 @@ export default function DashboardCharts({
   };
 
   const statusColors = {
-    "En cours": "#3b82f6",
-    Soumise: "#8b5cf6",
-    "En révision": "#f59e0b",
-    Acceptée: "#10b981",
-    Refusée: "#ef4444",
-    "En attente": "#6b7280",
+    "En cours": "#71717a", // Zinc 500
+    Soumise: "#3b82f6", // Blue 500
+    "En révision": "#f59e0b", // Amber 500
+    Acceptée: "#10b981", // Emerald 500
+    Refusée: "#f43f5e", // Rose 500
+    "En attente": "#d4d4d8", // Zinc 300
   };
 
   const statusData = Object.entries(statusCounts)
@@ -119,18 +119,18 @@ export default function DashboardCharts({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       {/* Camembert des statuts */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <PieChart className="w-5 h-5" />
+      <div className="bg-white rounded-xl border border-zinc-200/80 shadow-sm p-6">
+        <h3 className="text-base font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+          <PieChart className="w-4 h-4 text-zinc-400" />
           Répartition des Statuts
         </h3>
         <div className="flex flex-col items-center">
           {total > 0 ? (
             <>
-              <div className="w-48 h-48 mb-4">
+              <div className="w-44 h-44 mb-6">
                 <Doughnut data={chartData} options={chartOptions} />
               </div>
-              <div className="w-full space-y-2">
+              <div className="w-full space-y-2.5">
                 {statusData.map((item) => (
                   <div
                     key={item.status}
@@ -138,12 +138,12 @@ export default function DashboardCharts({
                   >
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-2.5 h-2.5 rounded-full"
                         style={{ backgroundColor: item.color }}
                       ></div>
-                      <span className="text-gray-700">{item.status}</span>
+                      <span className="text-zinc-600">{item.status}</span>
                     </div>
-                    <span className="font-semibold text-gray-900">
+                    <span className="font-medium text-zinc-900">
                       {item.count} ({item.percentage}%)
                     </span>
                   </div>
@@ -151,47 +151,47 @@ export default function DashboardCharts({
               </div>
             </>
           ) : (
-            <p className="text-gray-500 text-center py-8">Aucune candidature</p>
+            <p className="text-zinc-400 text-center py-8 text-sm">Aucune candidature</p>
           )}
         </div>
       </div>
 
       {/* Statistiques financières */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <DollarSign className="w-5 h-5" />
+      <div className="bg-white rounded-xl border border-zinc-200/80 shadow-sm p-6">
+        <h3 className="text-base font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-zinc-400" />
           Statistiques Financières
         </h3>
         <div className="space-y-3">
-          <div className="flex justify-between items-center p-3 bg-green-50 rounded">
-            <span className="text-sm font-medium text-gray-700">
+          <div className="flex justify-between items-center p-3 bg-zinc-50 border border-zinc-100 rounded-lg">
+            <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
               Bourses potentielles
             </span>
-            <span className="text-lg font-bold text-green-600">
+            <span className="text-base font-bold text-zinc-900">
               {potentialScholarshipAmount.toLocaleString("fr-FR")} €
             </span>
           </div>
-          <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
-            <span className="text-sm font-medium text-gray-700">
+          <div className="flex justify-between items-center p-3 bg-zinc-50 border border-zinc-100 rounded-lg">
+            <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
               Total bourses demandées
             </span>
-            <span className="text-lg font-bold text-blue-600">
+            <span className="text-base font-bold text-zinc-900">
               {totalScholarshipAmount.toLocaleString("fr-FR")} €
             </span>
           </div>
-          <div className="flex justify-between items-center p-3 bg-red-50 rounded">
-            <span className="text-sm font-medium text-gray-700">
+          <div className="flex justify-between items-center p-3 bg-zinc-50 border border-zinc-100 rounded-lg">
+            <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
               Frais de candidature
             </span>
-            <span className="text-lg font-bold text-red-600">
+            <span className="text-base font-bold text-zinc-900">
               {totalFees.toLocaleString("fr-FR")} €
             </span>
           </div>
-          <div className="flex justify-between items-center p-3 bg-purple-50 rounded">
-            <span className="text-sm font-medium text-gray-700">
+          <div className="flex justify-between items-center p-3 bg-zinc-50 border border-zinc-100 rounded-lg">
+            <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
               Taux d&apos;acceptation
             </span>
-            <span className="text-lg font-bold text-purple-600">
+            <span className="text-base font-bold text-zinc-900">
               {acceptanceRate}%
             </span>
           </div>
@@ -199,33 +199,33 @@ export default function DashboardCharts({
       </div>
 
       {/* Top 5 Pays */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Globe className="w-5 h-5" />
+      <div className="bg-white rounded-xl border border-zinc-200/80 shadow-sm p-6">
+        <h3 className="text-base font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+          <Globe className="w-4 h-4 text-zinc-400" />
           Top 5 Pays
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {topCountries.length > 0 ? (
             topCountries.map(([country, count]) => (
               <div key={country}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-zinc-700">
                     {country}
                   </span>
-                  <span className="text-sm font-bold text-indigo-600">
+                  <span className="text-xs font-semibold text-zinc-400">
                     {count} candidature{count > 1 ? "s" : ""}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-zinc-100 rounded-full h-1.5">
                   <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all"
+                    className="bg-zinc-900 h-1.5 rounded-full transition-all"
                     style={{ width: `${(count / maxCountryCount) * 100}%` }}
                   ></div>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-center py-4">
+            <p className="text-zinc-400 text-center py-4 text-sm">
               Aucune candidature pour le moment
             </p>
           )}

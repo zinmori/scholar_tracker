@@ -24,25 +24,25 @@ export default function StatsCards({ applications }: StatsCardsProps) {
     {
       label: "Total",
       value: total,
-      color: "#3b82f6",
+      bgClass: "bg-zinc-50 text-zinc-500 border border-zinc-200/50",
       icon: BarChart3,
     },
     {
       label: "Acceptées",
       value: accepted,
-      color: "#10b981",
+      bgClass: "bg-emerald-50 text-emerald-600 border border-emerald-100/60",
       icon: CheckCircle,
     },
     {
       label: "En cours",
       value: pending,
-      color: "#eab308",
+      bgClass: "bg-amber-50 text-amber-600 border border-amber-100/60",
       icon: Clock,
     },
     {
       label: "Refusées",
       value: rejected,
-      color: "#ef4444",
+      bgClass: "bg-rose-50 text-rose-600 border border-rose-100/60",
       icon: XCircle,
     },
   ];
@@ -54,19 +54,20 @@ export default function StatsCards({ applications }: StatsCardsProps) {
         return (
           <div
             key={stat.label}
-            className="bg-white rounded-lg shadow p-6 border-l-4"
-            style={{ borderLeftColor: stat.color }}
+            className="bg-white rounded-xl border border-zinc-200/80 shadow-sm p-6"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   {stat.label}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+                <p className="text-3xl font-bold text-zinc-950 mt-2">
                   {stat.value}
                 </p>
               </div>
-              <Icon className="w-10 h-10" style={{ color: stat.color }} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bgClass}`}>
+                <Icon className="w-6 h-6" />
+              </div>
             </div>
           </div>
         );

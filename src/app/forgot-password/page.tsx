@@ -42,16 +42,16 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl border border-zinc-200/80 shadow-sm p-8">
           <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="w-10 h-10 text-green-600" />
+            <div className="mx-auto w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100">
+              <CheckCircle className="w-10 h-10 text-emerald-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-zinc-900 mb-2">
               Email envoyé !
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-zinc-500 text-sm mb-6 leading-relaxed">
               Si un compte existe avec cet email, vous recevrez un lien de
               réinitialisation dans quelques instants. Vérifiez votre boîte de
               réception et vos spams.
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
 
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium"
+              className="inline-flex items-center gap-2 text-zinc-600 hover:text-zinc-900 underline underline-offset-4 transition-colors font-medium text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
               Retour à la connexion
@@ -71,13 +71,13 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-xl border border-zinc-200/80 shadow-sm p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-zinc-900 mb-2">
             Mot de passe oublié ?
           </h1>
-          <p className="text-gray-600">
+          <p className="text-zinc-500 text-sm">
             Entrez votre email pour recevoir un lien de réinitialisation
           </p>
         </div>
@@ -86,12 +86,12 @@ export default function ForgotPasswordPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-zinc-700 mb-2"
             >
               Email
             </label>
-            <div className="relative text-indigo-500">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5" />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-zinc-400" />
               <input
                 id="email"
                 name="email"
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="pl-10 w-full px-4 py-3 border border-zinc-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
                 placeholder="votre@email.com"
               />
             </div>
@@ -115,7 +115,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="w-full bg-zinc-900 text-white py-3 px-4 rounded-lg hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {loading ? "Envoi en cours..." : "Envoyer le lien"}
           </button>
@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
         <div className="mt-6 text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 underline underline-offset-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour à la connexion
