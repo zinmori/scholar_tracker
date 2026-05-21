@@ -174,7 +174,7 @@ export default function ApplicationCard({
         {application.notes && (
           <div className="mb-4 bg-zinc-50/50 p-2.5 rounded-lg border border-zinc-100">
             <p className="text-xs text-zinc-500 italic leading-relaxed line-clamp-2">
-              "{application.notes}"
+              &ldquo;{application.notes}&rdquo;
             </p>
           </div>
         )}

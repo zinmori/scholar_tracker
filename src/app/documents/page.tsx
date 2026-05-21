@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Document, DocumentType, User } from "@/types";
 import DocumentUploader from "@/components/DocumentUploader";
@@ -16,18 +16,7 @@ export default function DocumentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      router.push("/");
-      return;
-    }
-    setUser(JSON.parse(userData));
-    loadDocuments();
-  }, [router]);
-
-  const loadDocuments = async () => {
+  const loadDocuments = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch("/api/documents", {
@@ -50,7 +39,18 @@ export default function DocumentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.push("/");
+      return;
+    }
+    setUser(JSON.parse(userData));
+    loadDocuments();
+  }, [router, loadDocuments]);
 
   // Appliquer les filtres
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Application, User } from "@/types";
 import {
@@ -62,17 +62,6 @@ export default function OpportunitiesPage() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      router.push("/");
-      return;
-    }
-    setUser(JSON.parse(userData));
-    loadData();
-  }, [router]);
-
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     setToast({ message, type });
     setTimeout(() => {
@@ -80,7 +69,7 @@ export default function OpportunitiesPage() {
     }, 4000);
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -117,7 +106,18 @@ export default function OpportunitiesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.push("/");
+      return;
+    }
+    setUser(JSON.parse(userData));
+    loadData();
+  }, [router, loadData]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -375,7 +375,7 @@ export default function OpportunitiesPage() {
             </div>
           </div>
           <div className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
-            <span className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">Bourses d'Études</span>
+            <span className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">Bourses d&apos;Études</span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-semibold text-zinc-900 tracking-tight">{stats.scholarships}</span>
               <span className="text-[10px] text-zinc-400 font-medium">offres</span>
@@ -424,7 +424,7 @@ export default function OpportunitiesPage() {
             {/* Type Filter */}
             <div>
               <label className="block text-[10px] font-semibold text-zinc-450 uppercase tracking-wider mb-1.5">
-                Type d'opportunité
+                Type d&apos;opportunité
               </label>
               <select
                 value={typeFilter}
@@ -432,7 +432,7 @@ export default function OpportunitiesPage() {
                 className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-800 focus:outline-none focus:border-zinc-900 transition-colors"
               >
                 <option value="Tous">Tous les types ({stats.total})</option>
-                <option value="Bourse">Bourses d'excellence ({stats.scholarships})</option>
+                <option value="Bourse">Bourses d&apos;excellence ({stats.scholarships})</option>
                 <option value="Université">Admissions universitaires ({stats.universities})</option>
               </select>
             </div>
