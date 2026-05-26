@@ -7,6 +7,11 @@ export interface IUser extends Document {
   password: string;
   name: string;
   role: "admin" | "user";
+  preferences?: {
+    studyLevel?: string;
+    studyField?: string;
+    targetCountries?: string[];
+  };
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   createdAt: Date;
@@ -37,6 +42,11 @@ const UserSchema = new Schema<IUser>(
       type: String,
       enum: ["admin", "user"],
       default: "user",
+    },
+    preferences: {
+      studyLevel: { type: String, default: "" },
+      studyField: { type: String, default: "" },
+      targetCountries: { type: [String], default: [] },
     },
     resetPasswordToken: {
       type: String,

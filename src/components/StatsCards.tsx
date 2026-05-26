@@ -10,12 +10,10 @@ export default function StatsCards({ applications }: StatsCardsProps) {
   const accepted = applications.filter(
     (app) => app.status === "Acceptée"
   ).length;
-  const pending = applications.filter(
-    (app) =>
-      app.status === "En cours" ||
-      app.status === "Soumise" ||
-      app.status === "En révision"
-  ).length;
+  const pending = applications.filter(app => {
+    const isOverdue = (app.status === "En cours" || app.status === "En attente") && new Date(app.deadline).getTime() - new Date().getTime() < 0;
+    return (app.status === "En cours" || app.status === "En attente" || app.status === "Soumise" || app.status === "En révision") && !isOverdue;
+  }).length;
   const rejected = applications.filter(
     (app) => app.status === "Refusée"
   ).length;

@@ -1,202 +1,380 @@
 import connectDB from "./mongodb";
 import Opportunity from "@/models/Opportunity";
 
-export async function scrapeOpportunities() {
-  await connectDB();
+// ──────────────────────────────────────────────
+// Types
+// ──────────────────────────────────────────────
+interface ScrapedOpportunity {
+  name: string;
+  program?: string;
+  type: "Université" | "Bourse";
+  country: string;
+  deadline: Date;
+  amount?: number;
+  website: string;
+  notes?: string;
+  source: string;
+  scrapedAt: Date;
+}
 
-  const opportunities: any[] = [];
+interface AIExtractedOpportunity {
+  name: string;
+  program?: string;
+  type?: "Université" | "Bourse";
+  country?: string;
+  deadline?: string; // ISO string or "YYYY-MM-DD"
+  amount?: number;
+  notes?: string;
+}
 
-  // RSS feeds requested by the user
-  const feeds = [
-    {
-      name: "Bright Scholarship",
-      url: "https://brightscholarship.com/feed/",
-      type: "Bourse" as const,
-      defaultCountry: "International"
+// ──────────────────────────────────────────────
+// Config
+// ──────────────────────────────────────────────
+const SITES = [
+  {
+    name: "Bright Scholarship",
+    baseUrl: "https://brightscholarship.com",
+    listUrl: "https://brightscholarship.com/",
+    defaultType: "Bourse" as const,
+    defaultCountry: "International",
+  },
+  {
+    name: "Greatyop",
+    baseUrl: "https://greatyop.com",
+    listUrl: "https://greatyop.com/",
+    defaultType: "Bourse" as const,
+    defaultCountry: "International",
+  },
+];
+
+const MAX_ARTICLES_PER_SITE = 10;
+const FETCH_TIMEOUT_MS = 15000;
+const OPENROUTER_MODEL = "google/gemini-2.5-flash";
+
+// ──────────────────────────────────────────────
+// HTML helpers
+// ──────────────────────────────────────────────
+
+/** Strip all HTML tags and decode basic entities */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8211;/g, "-")
+    .replace(/&#8230;/g, "...")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/** Fetch with timeout and a browser-like User-Agent */
+async function fetchWithTimeout(url: string, timeoutMs = FETCH_TIMEOUT_MS): Promise<string> {
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9,fr;q=0.8",
     },
-    {
-      name: "Greatyop",
-      url: "https://greatyop.com/feed/",
-      type: "Bourse" as const,
-      defaultCountry: "International"
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`);
+  }
+  return response.text();
+}
+
+// ──────────────────────────────────────────────
+// Link extraction
+// ──────────────────────────────────────────────
+
+/**
+ * Extract article/post URLs from a listing page.
+ * We look for <a href="..."> elements whose href looks like a single post
+ * (contains a long slug, not a category/tag/page path).
+ */
+function extractArticleLinks(html: string, baseUrl: string): string[] {
+  const seen = new Set<string>();
+  const links: string[] = [];
+
+  // Match all anchor hrefs
+  const hrefRegex = /href=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+
+  while ((m = hrefRegex.exec(html)) !== null) {
+    let href = m[1].trim();
+
+    // Skip anchors, mailto, etc.
+    if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("javascript:")) {
+      continue;
     }
-  ];
 
-  for (const feed of feeds) {
+    // Handle protocol-relative URLs (//domain.com/path)
+    if (href.startsWith("//")) {
+      href = "https:" + href;
+    }
+
+    // Make absolute for relative paths
+    if (href.startsWith("/") && !href.startsWith("//")) {
+      href = baseUrl.replace(/\/$/, "") + href;
+    } else if (!href.startsWith("http")) {
+      continue;
+    }
+
+    // Must belong to the same domain
     try {
-      console.log(`[Scraper] Fetching feed from ${feed.name}: ${feed.url}`);
-      const response = await fetch(feed.url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        },
-        signal: AbortSignal.timeout(12000) // 12 seconds timeout
-      });
+      const urlObj = new URL(href);
+      const baseObj = new URL(baseUrl);
+      if (urlObj.hostname !== baseObj.hostname) continue;
 
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
+      // Filter out generic pages (home, categories, tags, pages, authors, feeds)
+      const path = urlObj.pathname;
+      if (
+        path === "/" ||
+        path === "" ||
+        /\/(tag|category|author|page|feed|search|wp-content|wp-admin|wp-json)\//i.test(path) ||
+        path.endsWith(".xml") ||
+        path.endsWith(".css") ||
+        path.endsWith(".js") ||
+        path.endsWith(".png") ||
+        path.endsWith(".jpg")
+      ) {
+        continue;
       }
 
-      const xmlText = await response.text();
+      // Prefer paths that look like posts (have a meaningful slug)
+      const slug = path.replace(/^\/|\/$/g, "");
+      if (slug.split("/").pop()!.length < 8) continue; // too short to be an article slug
 
-      // Simple regex-based parsing of RSS items to avoid library dependencies
-      const itemRegex = /<item>([\s\S]*?)<\/item>/g;
-      let match;
-      let count = 0;
-
-      while ((match = itemRegex.exec(xmlText)) !== null && count < 12) {
-        const itemContent = match[1];
-
-        // Match title, link, description, pubDate
-        const titleMatch = itemContent.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) || itemContent.match(/<title>([\s\S]*?)<\/title>/);
-        const linkMatch = itemContent.match(/<link><!\[CDATA\[([\s\S]*?)\]\]><\/link>/) || itemContent.match(/<link>([\s\S]*?)<\/link>/);
-        const descMatch = itemContent.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) || itemContent.match(/<description>([\s\S]*?)<\/description>/);
-        const dateMatch = itemContent.match(/<pubDate>([\s\S]*?)<\/pubDate>/);
-
-        if (titleMatch && linkMatch) {
-          let title = titleMatch[1].trim();
-          const link = linkMatch[1].trim();
-          const rawDesc = descMatch ? descMatch[1] : "";
-          
-          // Clean title and description from HTML tags and unescape entities
-          title = title
-            .replace(/<[^>]*>/g, "")
-            .replace(/&#8217;/g, "'")
-            .replace(/&#8211;/g, "-")
-            .replace(/&#8230;/g, "...")
-            .replace(/&amp;/g, "&")
-            .replace(/&lt;/g, "<")
-            .replace(/&gt;/g, ">")
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'");
-
-          let desc = rawDesc
-            .replace(/<[^>]*>/g, "")
-            .replace(/\s+/g, " ")
-            .trim();
-          
-          desc = desc
-            .replace(/&#8217;/g, "'")
-            .replace(/&#8211;/g, "-")
-            .replace(/&#8230;/g, "...")
-            .replace(/&amp;/g, "&")
-            .replace(/&lt;/g, "<")
-            .replace(/&gt;/g, ">")
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'");
-
-          const pubDate = dateMatch ? new Date(dateMatch[1]) : new Date();
-
-          // Extract category tags to construct the program field
-          const categories: string[] = [];
-          let catMatch;
-          const catRegex = /<category>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/category>/g;
-          while ((catMatch = catRegex.exec(itemContent)) !== null) {
-            const catName = catMatch[1].trim();
-            if (catName && !categories.includes(catName)) {
-              categories.push(catName);
-            }
-          }
-
-          const program = categories
-            .filter(
-              (c) =>
-                !c.toLowerCase().includes("scholarship") &&
-                !c.toLowerCase().includes("recommended") &&
-                !c.toLowerCase().includes("fully funded")
-            )
-            .slice(0, 3)
-            .join(", ") || feed.name;
-
-          // Deduce country from title/description
-          let country = feed.defaultCountry;
-          const searchArea = (title + " " + desc + " " + categories.join(" ")).toLowerCase();
-          
-          if (searchArea.includes("turkey") || searchArea.includes("turquie")) country = "Turquie";
-          else if (searchArea.includes("germany") || searchArea.includes("allemagne")) country = "Allemagne";
-          else if (searchArea.includes("france")) country = "France";
-          else if (searchArea.includes("swiss") || searchArea.includes("suisse") || searchArea.includes("switzerland")) country = "Suisse";
-          else if (searchArea.includes("belgium") || searchArea.includes("belgique")) country = "Belgique";
-          else if (searchArea.includes("united states") || searchArea.includes("usa") || searchArea.includes("états-unis") || searchArea.includes("american")) country = "États-Unis";
-          else if (searchArea.includes("united kingdom") || searchArea.includes("uk ") || searchArea.includes("royaume-uni") || searchArea.includes("british")) country = "Royaume-Uni";
-          else if (searchArea.includes("canada") || searchArea.includes("québec") || searchArea.includes("canadian")) country = "Canada";
-          else if (searchArea.includes("china") || searchArea.includes("chine") || searchArea.includes("chinese")) country = "Chine";
-          else if (searchArea.includes("taiwan") || searchArea.includes("taïwan")) country = "Taïwan";
-          else if (searchArea.includes("romania") || searchArea.includes("roumanie")) country = "Roumanie";
-          else if (searchArea.includes("italy") || searchArea.includes("italie") || searchArea.includes("italian")) country = "Italie";
-          else if (searchArea.includes("japan") || searchArea.includes("japon") || searchArea.includes("japanese")) country = "Japon";
-          else if (searchArea.includes("australia") || searchArea.includes("australie") || searchArea.includes("australian")) country = "Australie";
-          else if (searchArea.includes("europe")) country = "Europe";
-
-          // Simulate a deadline: 45 days after publication.
-          // If the calculated deadline is in the past, push it to 60 days from now 
-          // to keep the opportunity active for user tracking.
-          let deadline = new Date(pubDate);
-          deadline.setDate(deadline.getDate() + 45);
-          if (deadline < new Date()) {
-            deadline = new Date();
-            deadline.setDate(deadline.getDate() + 60);
-          }
-
-          // Try to extract a financial amount from title/description
-          let amount: number | undefined = undefined;
-          const amountMatch = (title + " " + desc).match(/(?:[€$£]|USD|EUR)\s*([0-9]{1,3}(?:[ ,][0-9]{3})*)|([0-9]{1,3}(?:[ ,][0-9]{3})*)\s*(?:[€$£]|USD|EUR|euros|dollars)/i);
-          if (amountMatch) {
-            const rawVal = amountMatch[1] || amountMatch[2];
-            const parsedVal = parseInt(rawVal.replace(/[\s,]/g, ""), 10);
-            if (!isNaN(parsedVal) && parsedVal >= 100 && parsedVal <= 250000) {
-              amount = parsedVal;
-            }
-          }
-
-          const notes = desc.length > 280 ? desc.substring(0, 277) + "..." : desc;
-
-          opportunities.push({
-            name: title.length > 120 ? title.substring(0, 117) + "..." : title,
-            program,
-            type: feed.type,
-            country,
-            deadline,
-            amount,
-            website: link,
-            notes: notes || "Consultez le site officiel pour en savoir plus sur cette opportunité.",
-            source: feed.name,
-            scrapedAt: new Date()
-          });
-          count++;
-        }
+      const canonical = urlObj.origin + urlObj.pathname;
+      if (!seen.has(canonical)) {
+        seen.add(canonical);
+        links.push(canonical);
       }
-    } catch (error: any) {
-      console.warn(`[Scraper] Failed to scrape ${feed.name}:`, error.message || error);
+    } catch {
+      // Invalid URL
     }
   }
 
+  return links;
+}
+
+// ──────────────────────────────────────────────
+// OpenRouter AI extraction
+// ──────────────────────────────────────────────
+
+async function extractWithAI(
+  articleUrl: string,
+  articleText: string,
+  siteName: string,
+  defaultType: "Université" | "Bourse",
+  defaultCountry: string
+): Promise<AIExtractedOpportunity | null> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    console.warn("[Scraper] OPENROUTER_API_KEY not set, skipping AI extraction.");
+    return null;
+  }
+
+  // Truncate content to avoid huge token usage (~4000 chars ≈ 1000 tokens)
+  const content = articleText.substring(0, 4000);
+
+  const systemPrompt = `You are a scholarship/opportunity data extractor. 
+Given the text of a scholarship or academic opportunity article, extract structured information.
+Respond ONLY with a valid JSON object. No markdown, no explanation.
+
+JSON schema:
+{
+  "name": "string (scholarship/opportunity title, max 120 chars)",
+  "program": "string (field of study or program name, optional)",
+  "type": "Université" | "Bourse",
+  "country": "string (host country in French, e.g. Allemagne, France, États-Unis, Royaume-Uni, International)",
+  "deadline": "string (ISO date YYYY-MM-DD, or null if not found)",
+  "amount": number | null (scholarship amount in USD/EUR as integer, or null),
+  "notes": "string (2-3 sentence summary in French, max 280 chars)"
+}`;
+
+  const userPrompt = `Source: ${siteName}
+URL: ${articleUrl}
+
+Article content:
+${content}`;
+
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://scholar-tracker.vercel.app",
+        "X-Title": "Scholar Tracker",
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.1,
+        max_tokens: 512,
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.warn(`[Scraper] OpenRouter API error ${response.status}: ${errText}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const rawContent: string = data?.choices?.[0]?.message?.content ?? "";
+
+    // Extract JSON from response (handle possible markdown code fences)
+    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.warn(`[Scraper] No JSON found in AI response for ${articleUrl}`);
+      return null;
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]) as AIExtractedOpportunity;
+    return parsed;
+  } catch (err: any) {
+    console.warn(`[Scraper] AI extraction failed for ${articleUrl}: ${err.message}`);
+    return null;
+  }
+}
+
+// ──────────────────────────────────────────────
+// Deadline helpers
+// ──────────────────────────────────────────────
+
+function resolveDeadline(deadlineStr: string | null | undefined): Date {
+  if (deadlineStr) {
+    const parsed = new Date(deadlineStr);
+    if (!isNaN(parsed.getTime()) && parsed > new Date()) {
+      return parsed;
+    }
+  }
+  // Fallback: 90 days from now
+  const fallback = new Date();
+  fallback.setDate(fallback.getDate() + 90);
+  return fallback;
+}
+
+// ──────────────────────────────────────────────
+// Main scraper
+// ──────────────────────────────────────────────
+
+export async function scrapeOpportunities() {
+  await connectDB();
+
+  const opportunities: ScrapedOpportunity[] = [];
+
+  for (const site of SITES) {
+    try {
+      console.log(`[Scraper] Fetching listing page: ${site.listUrl}`);
+      const listingHtml = await fetchWithTimeout(site.listUrl);
+
+      const articleLinks = extractArticleLinks(listingHtml, site.baseUrl);
+      const topLinks = articleLinks.slice(0, MAX_ARTICLES_PER_SITE);
+
+      console.log(
+        `[Scraper] Found ${articleLinks.length} candidate links on ${site.name}, processing top ${topLinks.length}`
+      );
+
+      for (const link of topLinks) {
+        try {
+          console.log(`[Scraper]  → Fetching article: ${link}`);
+          const articleHtml = await fetchWithTimeout(link, 12000);
+          const articleText = stripHtml(articleHtml);
+
+          const extracted = await extractWithAI(
+            link,
+            articleText,
+            site.name,
+            site.defaultType,
+            site.defaultCountry
+          );
+
+          if (!extracted || !extracted.name) {
+            console.warn(`[Scraper]  ✗ AI returned no usable data for ${link}`);
+            continue;
+          }
+
+          const opp: ScrapedOpportunity = {
+            name: extracted.name.substring(0, 120),
+            program: extracted.program || site.name,
+            type: extracted.type || site.defaultType,
+            country: extracted.country || site.defaultCountry,
+            deadline: resolveDeadline(extracted.deadline),
+            amount:
+              extracted.amount && extracted.amount >= 100 && extracted.amount <= 300000
+                ? extracted.amount
+                : undefined,
+            website: link,
+            notes:
+              extracted.notes ||
+              "Consultez le site officiel pour plus d'informations sur cette opportunité.",
+            source: site.name,
+            scrapedAt: new Date(),
+          };
+
+          opportunities.push(opp);
+          console.log(`[Scraper]  ✓ Extracted: "${opp.name}" (${opp.country})`);
+        } catch (articleErr: any) {
+          console.warn(`[Scraper]  ✗ Failed to process ${link}: ${articleErr.message}`);
+        }
+      }
+    } catch (siteErr: any) {
+      console.warn(`[Scraper] Failed to scrape ${site.name}: ${siteErr.message}`);
+    }
+  }
+
+  // Persist to DB
   let addedCount = 0;
   let updatedCount = 0;
 
   for (const oppData of opportunities) {
-    const existing = await Opportunity.findOne({ name: oppData.name, source: oppData.source });
-    if (!existing) {
-      await Opportunity.create(oppData);
-      addedCount++;
-    } else {
-      // Update values to keep them fresh
-      existing.deadline = oppData.deadline;
-      existing.website = oppData.website;
-      existing.notes = oppData.notes;
-      existing.program = oppData.program || existing.program;
-      existing.amount = oppData.amount || existing.amount;
-      existing.scrapedAt = new Date();
-      await existing.save();
-      updatedCount++;
+    try {
+      const existing = await Opportunity.findOne({ website: oppData.website });
+      if (!existing) {
+        await Opportunity.create(oppData);
+        addedCount++;
+      } else {
+        existing.name = oppData.name;
+        existing.program = oppData.program || existing.program;
+        existing.type = oppData.type;
+        existing.country = oppData.country;
+        existing.deadline = oppData.deadline;
+        existing.amount = oppData.amount ?? existing.amount;
+        existing.notes = oppData.notes || existing.notes;
+        existing.scrapedAt = new Date();
+        await existing.save();
+        updatedCount++;
+      }
+    } catch (dbErr: any) {
+      console.warn(`[Scraper] DB error for "${oppData.name}": ${dbErr.message}`);
     }
   }
 
-  console.log(`[Scraper] Finished. Added ${addedCount} new, updated ${updatedCount} opportunities. Total processed: ${opportunities.length}`);
+  console.log(
+    `[Scraper] Done. Added ${addedCount}, updated ${updatedCount}. Total processed: ${opportunities.length}`
+  );
 
   return {
     success: true,
     addedCount,
     updatedCount,
-    totalProcessed: opportunities.length
+    totalProcessed: opportunities.length,
   };
 }

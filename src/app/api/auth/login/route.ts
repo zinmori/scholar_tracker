@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        preferences: user.preferences,
       },
       token,
     });

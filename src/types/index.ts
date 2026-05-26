@@ -4,7 +4,8 @@ export type ApplicationStatus =
   | "En révision"
   | "Acceptée"
   | "Refusée"
-  | "En attente";
+  | "En attente"
+  | "Expirée";
 
 export type ApplicationType = "Université" | "Bourse";
 
@@ -82,4 +83,9 @@ export interface User {
   email: string;
   name: string;
   role: "admin" | "user";
+  preferences?: {
+    studyLevel?: string;
+    studyField?: string;
+    targetCountries?: string[];
+  };
 }

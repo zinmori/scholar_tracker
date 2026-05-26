@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Document, DocumentType, User } from "@/types";
 import DocumentUploader from "@/components/DocumentUploader";
 import DocumentList from "@/components/DocumentList";
-import { FileText, Filter, ArrowLeft, LogOut, Users } from "lucide-react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { FileText, Filter, HardDrive, Files, ShieldAlert } from "lucide-react";
 
 export default function DocumentsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -42,7 +43,6 @@ export default function DocumentsPage() {
   }, [router]);
 
   useEffect(() => {
-    // Check if user is logged in
     const userData = localStorage.getItem("user");
     if (!userData) {
       router.push("/");
@@ -56,18 +56,17 @@ export default function DocumentsPage() {
   useEffect(() => {
     let filtered = [...documents];
 
-    // Filtre par type
     if (typeFilter !== "Tous") {
       filtered = filtered.filter((doc) => doc.type === typeFilter);
     }
 
-    // Recherche
     if (searchTerm) {
+      const q = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (doc) =>
-          doc.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          doc.user?.name.toLowerCase().includes(searchTerm.toLowerCase())
+          doc.originalName.toLowerCase().includes(q) ||
+          doc.description?.toLowerCase().includes(q) ||
+          doc.user?.name.toLowerCase().includes(q)
       );
     }
 
@@ -88,7 +87,6 @@ export default function DocumentsPage() {
         throw new Error("Erreur lors de la suppression");
       }
 
-      // Recharger les documents
       loadDocuments();
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -96,16 +94,12 @@ export default function DocumentsPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    router.push("/");
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
-        <div className="text-sm font-medium text-zinc-500 animate-pulse">Chargement...</div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-xs font-bold text-indigo-650 animate-pulse uppercase tracking-wider">
+          Chargement de l&apos;espace documents...
+        </div>
       </div>
     );
   }
@@ -135,147 +129,120 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/50">
-      {/* Header */}
-      <header className="bg-white border-b border-zinc-200/80 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="p-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors"
-                title="Retour au dashboard"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div>
-                <h1 className="text-xl font-semibold text-zinc-900 tracking-tight flex items-center gap-2.5">
-                  <FileText className="w-7 h-7 text-zinc-900" />
-                  Mes Documents
-                </h1>
-                <p className="text-xs text-zinc-500 mt-0.5 font-medium">
-                  Gérez vos documents de candidature
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              {user?.role === "admin" && (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 bg-zinc-100 text-zinc-800 border border-zinc-200/80 rounded-full text-[10px] sm:text-xs font-medium">
-                  <Users className="w-3 h-3 text-zinc-700" />
-                  Admin
-                </span>
-              )}
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-semibold text-zinc-850">
-                  {user?.name}
-                </p>
-                <p className="text-[10px] text-zinc-400 mt-0.5">{user?.email}</p>
-              </div>
-              <div className="w-px h-4 bg-zinc-200 hidden sm:block"></div>
-              <button
-                onClick={handleLogout}
-                className="p-2 text-zinc-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-lg transition-colors"
-                title="Se déconnecter"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-            </div>
+    <DashboardLayout>
+      {/* Welcome & Info */}
+      <div className="mb-8 p-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl border border-white/5 relative overflow-hidden shadow-xl shadow-indigo-950/10">
+        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+        <div className="relative z-10">
+          <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+            Gestionnaire de Documents 📂
+          </h2>
+          <p className="text-xs text-slate-200 mt-1.5 font-medium leading-relaxed max-w-xl">
+            Centralisez, déposez et liez vos justificatifs, CV et relevés de notes directement à vos candidatures en cours. Stockage Cloud sécurisé.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Total Fichiers</span>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-xl font-bold text-slate-900 tracking-tight">{stats.total}</span>
+            <span className="text-[9px] text-slate-405 font-bold uppercase">fichiers</span>
           </div>
         </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-xs">
-            <p className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">Total Documents</p>
-            <p className="text-2xl font-semibold text-zinc-900 mt-1.5 tracking-tight">
-              {stats.total}
-            </p>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Curriculum Vitae</span>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-xl font-bold text-slate-900 tracking-tight">{stats.cv}</span>
+            <span className="text-[9px] text-slate-405 font-bold uppercase">déposés</span>
           </div>
-          <div className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-xs">
-            <p className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">CV</p>
-            <p className="text-2xl font-semibold text-zinc-900 mt-1.5 tracking-tight">{stats.cv}</p>
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Lettres Motivation</span>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-xl font-bold text-slate-900 tracking-tight">{stats.letters}</span>
+            <span className="text-[9px] text-slate-405 font-bold uppercase">rédigées</span>
           </div>
-          <div className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-xs">
-            <p className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">Lettres</p>
-            <p className="text-2xl font-semibold text-zinc-900 mt-1.5 tracking-tight">
-              {stats.letters}
-            </p>
-          </div>
-          <div className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-xs">
-            <p className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">Espace utilisé</p>
-            <p className="text-2xl font-semibold text-zinc-900 mt-1.5 tracking-tight">
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Espace utilisé</span>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-xl font-bold text-indigo-650 tracking-tight">
               {formatTotalSize(stats.totalSize)}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Uploader - Left Side */}
-          <div className="lg:col-span-1">
-            <DocumentUploader onUploadSuccess={loadDocuments} />
-          </div>
-
-          {/* Documents List - Right Side */}
-          <div className="lg:col-span-2">
-            {/* Filters */}
-            <div className="bg-white p-5 rounded-xl border border-zinc-200/80 mb-4 shadow-xs">
-              <div className="flex items-center gap-2 mb-4">
-                <Filter className="w-4 h-4 text-zinc-400" />
-                <h3 className="text-sm font-semibold text-zinc-900">Filtres</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-semibold text-zinc-450 uppercase tracking-wider mb-1.5">
-                    Rechercher
-                  </label>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Nom du fichier..."
-                    className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-semibold text-zinc-450 uppercase tracking-wider mb-1.5">
-                    Type de document
-                  </label>
-                  <select
-                    value={typeFilter}
-                    onChange={(e) =>
-                      setTypeFilter(e.target.value as DocumentType | "Tous")
-                    }
-                    className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-800 focus:outline-none focus:border-zinc-900 transition-colors"
-                  >
-                    {documentTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Results Header */}
-            <div className="mb-4">
-              <p className="text-xs font-medium text-zinc-500">
-                {filteredDocs.length} sur {documents.length} document
-                {documents.length > 1 ? "s" : ""}
-              </p>
-            </div>
-
-            {/* Documents List */}
-            <DocumentList
-              documents={filteredDocs}
-              onDelete={handleDelete}
-              showOwner={user?.role === "admin"}
-            />
+            </span>
+            <span className="text-[9px] text-slate-405 font-bold uppercase">occupé</span>
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Upload Side */}
+        <div className="lg:col-span-1 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
+            <HardDrive className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Téléverser un document</h3>
+          </div>
+          <DocumentUploader onUploadSuccess={loadDocuments} />
+        </div>
+
+        {/* List Side */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Filters Card */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
+              <Filter className="w-4 h-4 text-slate-450" />
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Filtrer mes documents</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-widest mb-1.5">
+                  Nom du document
+                </label>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Recherche par nom ou mots-clés..."
+                  className="w-full px-3 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-widest mb-1.5">
+                  Catégorie de fichier
+                </label>
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value as DocumentType | "Tous")}
+                  className="w-full px-3 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-indigo-500 transition-colors"
+                >
+                  {documentTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Summary */}
+          <div className="flex justify-between items-center">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+              {filteredDocs.length} document{filteredDocs.length > 1 ? "s" : ""} trouvé{filteredDocs.length > 1 ? "s" : ""}
+            </p>
+          </div>
+
+          {/* Documents Grid List */}
+          <DocumentList
+            documents={filteredDocs}
+            onDelete={handleDelete}
+            showOwner={user?.role === "admin"}
+          />
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }

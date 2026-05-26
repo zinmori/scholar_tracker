@@ -53,20 +53,33 @@ export default function DashboardCharts({
 
   const maxCountryCount = Math.max(...Object.values(countryCounts), 1);
 
-  // Données pour le camembert des statuts
+    // Données pour le camembert des statuts
+  const enCoursActive = applications.filter(app =>
+    app.status === "En cours" &&
+    new Date(app.deadline).getTime() - Date.now() >= 0
+  ).length;
+  const enAttenteActive = applications.filter(app =>
+    app.status === "En attente" &&
+    new Date(app.deadline).getTime() - Date.now() >= 0
+  ).length;
+  const expired = applications.filter(app =>
+    (app.status === "En cours" || app.status === "En attente") &&
+    new Date(app.deadline).getTime() - Date.now() < 0
+  ).length;
+
   const statusCounts = {
-    "En cours": applications.filter((app) => app.status === "En cours").length,
+    "En cours": enCoursActive,
+    Expirée: expired,
     Soumise: applications.filter((app) => app.status === "Soumise").length,
-    "En révision": applications.filter((app) => app.status === "En révision")
-      .length,
+    "En révision": applications.filter((app) => app.status === "En révision").length,
     Acceptée: applications.filter((app) => app.status === "Acceptée").length,
     Refusée: applications.filter((app) => app.status === "Refusée").length,
-    "En attente": applications.filter((app) => app.status === "En attente")
-      .length,
+    "En attente": enAttenteActive,
   };
 
   const statusColors = {
     "En cours": "#71717a", // Zinc 500
+    Expirée: "#ff6b6b", // Rose accent for expired
     Soumise: "#3b82f6", // Blue 500
     "En révision": "#f59e0b", // Amber 500
     Acceptée: "#10b981", // Emerald 500
